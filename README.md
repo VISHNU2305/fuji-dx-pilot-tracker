@@ -45,14 +45,14 @@ The tracker follows one problem from first report to measured result:
 
 | Feature | Status |
 |---|---|
-| Problem report form: business, area, current workflow, frequency, minutes per occurrence, people affected | Planned |
-| Request and incident categories with status tracking (new, triaged, in pilot, resolved) | Planned |
-| Priority score from frequency, time lost and people affected (a simple, explainable rule) | Planned |
-| Pilot plan: goal, metric, baseline, target, scope, timeline, owner | Planned |
-| Rule that a pilot cannot start without a metric and a baseline | Planned |
-| Before-and-after results with the measurement method recorded | Planned |
-| Effectiveness calculation: hours saved per month and percentage improvement | Planned |
-| Approval flow with stakeholders: draft, review, approved, running, finished | Planned |
+| Problem report form: business, area, current workflow, frequency, minutes per occurrence, people affected | done |
+| Request and incident categories with status tracking (new, triaged, in pilot, resolved) | done |
+| Priority score from frequency, time lost and people affected (a simple, explainable rule) | done |
+| Pilot plan: goal, metric, baseline, target, scope, timeline, owner | done |
+| Rule that a pilot cannot start without a metric and a baseline | done |
+| Before-and-after results with the measurement method recorded | done |
+| Effectiveness calculation: hours saved per month and percentage improvement | done |
+| Approval flow with stakeholders: draft, review, approved, running, finished | done |
 | Comments and decisions on each problem and pilot | Planned |
 | Roles and access control, enforced on the server | Planned |
 | Audit log of who changed what and when | Planned |
