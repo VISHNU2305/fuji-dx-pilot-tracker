@@ -138,3 +138,28 @@ class Pilot(models.Model):
 
     def __str__(self):
         return self.goal
+
+    
+
+class PilotResult(models.Model):
+    """A value measured during or after a pilot, with how it was measured."""
+    pilot = models.ForeignKey(Pilot, on_delete=models.PROTECT,
+                              related_name="results")
+    value = models.DecimalField(max_digits=12, decimal_places=2)
+    measured_on = models.DateField()
+    method_note = models.TextField(help_text="How this value was measured.")
+    recorded_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    on_delete=models.PROTECT,
+                                    related_name="recorded_results")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(name="result_value_not_negative",
+                                   condition=Q(value__gte=0)),
+            models.CheckConstraint(name="result_needs_a_method_note",
+                                   condition=~Q(method_note="")),
+        ]
+
+    def __str__(self):
+        return f"{self.pilot}: {self.value} on {self.measured_on}"

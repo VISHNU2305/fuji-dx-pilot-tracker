@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Business, Pilot, Problem
+from .models import Business, Pilot, PilotResult, Problem
 
 admin.site.register(Business)
 
@@ -15,3 +15,8 @@ class ProblemAdmin(admin.ModelAdmin):
 class PilotAdmin(admin.ModelAdmin):
     list_display = ("goal", "problem", "status", "owner", "start_date")
     list_filter = ("status",)
+
+
+@admin.register(PilotResult)
+class PilotResultAdmin(admin.ModelAdmin):
+    list_display = ("pilot", "value", "measured_on", "recorded_by")
