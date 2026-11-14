@@ -1,5 +1,7 @@
 from django.conf import settings
-from django.db import models
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
+from django.db.models import F, Q
 
 
 class Business(models.Model):
@@ -58,3 +60,81 @@ class Problem(models.Model):
 
     def __str__(self):
         return f"{self.business}: {self.title}"
+
+
+class Pilot(models.Model):
+    """A small-scale trial of an improvement for one problem."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        REVIEW = "review", "In review"
+        APPROVED = "approved", "Approved"
+        RUNNING = "running", "Running"
+        FINISHED = "finished", "Finished"
+
+    problem = models.ForeignKey(Problem, on_delete=models.PROTECT,
+                                related_name="pilots")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                              related_name="owned_pilots")
+    goal = models.CharField(max_length=200)
+    metric_name = models.CharField(max_length=100, blank=True)
+    unit = models.CharField(max_length=30, blank=True)
+    baseline_value = models.DecimalField(max_digits=12, decimal_places=2,
+                                         null=True, blank=True)
+    target_value = models.DecimalField(max_digits=12, decimal_places=2,
+                                       null=True, blank=True)
+    measurement_method = models.TextField(
+        blank=True, help_text="How the baseline and results are measured.")
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices,
+                              default=Status.DRAFT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            # Only a draft or a pilot in review may be incomplete.
+            models.CheckConstraint(
+                name="pilot_needs_metric_baseline_target_and_method",
+                condition=(
+                    Q(status__in=["draft", "review"])
+                    | (~Q(metric_name="")
+                       & Q(baseline_value__isnull=False)
+                       & Q(target_value__isnull=False)
+                       & ~Q(measurement_method=""))
+                ),
+            ),
+            models.CheckConstraint(
+                name="pilot_end_not_before_start",
+                condition=(Q(start_date__isnull=True) | Q(end_date__isnull=True)
+                           | Q(end_date__gte=F("start_date"))),
+            ),
+        ]
+
+    def missing_for_start(self):
+        missing = []
+        if not self.metric_name:
+            missing.append("a metric")
+        if self.baseline_value is None:
+            missing.append("a baseline")
+        if self.target_value is None:
+            missing.append("a target")
+        if not self.measurement_method:
+            missing.append("a measurement method")
+        return missing
+
+    def start(self, on):
+        """Start the pilot, but only if it can be judged afterwards."""
+        missing = self.missing_for_start()
+        if missing:
+            raise ValidationError(
+                "A pilot cannot start without " + ", ".join(missing) + ".")
+        with transaction.atomic():
+            self.status = self.Status.RUNNING
+            self.start_date = on
+            self.save()
+            self.problem.status = Problem.Status.IN_PILOT
+            self.problem.save(update_fields=["status"])
+
+    def __str__(self):
+        return self.goal
