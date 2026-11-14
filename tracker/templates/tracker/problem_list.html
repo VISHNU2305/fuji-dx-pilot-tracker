@@ -1,0 +1,20 @@
+{% extends "tracker/base.html" %}
+{% block content %}
+<h1>Problems</h1>
+{% if problems %}
+<table>
+  <tr><th>Reported</th><th>Business</th><th>Title</th><th>Hours lost per month</th><th>Status</th></tr>
+  {% for p in problems %}
+  <tr>
+    <td>{{ p.created_at|date:"d M Y" }}</td>
+    <td>{{ p.business }}</td>
+    <td>{{ p.title }}</td>
+    <td>{{ p.hours_lost_per_month|floatformat:1 }}</td>
+    <td>{{ p.get_status_display }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No problems reported yet.</p>
+{% endif %}
+{% endblock %}

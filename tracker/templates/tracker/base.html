@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frontline DX Pilot Tracker</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1rem; }
+    nav { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #ddd; padding: .5rem; text-align: left; }
+    label { display: block; margin-top: .8rem; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: .4rem; }
+    .errorlist { color: #b00020; }
+    button { margin-top: 1rem; padding: .5rem 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Frontline DX Pilot Tracker</strong>
+    <a href="{% url 'problem_list' %}">Problems</a>
+    <a href="{% url 'problem_create' %}">Report a problem</a>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}" style="margin-left:auto">
+        {% csrf_token %}
+        <span>{{ user.username }}</span>
+        <button type="submit">Sign out</button>
+      </form>
+    {% endif %}
+  </nav>
+  {% block content %}{% endblock %}
+</body>
+</html>
